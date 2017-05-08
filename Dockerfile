@@ -1,7 +1,7 @@
 FROM bitnami/minideb:jessie
 LABEL maintainer "Scrapinghub <opensource@scrapinghub.com>"
 
-RUN install_packages bzip2 ca-certificates curl jq libfontconfig python
+RUN install_packages bzip2 ca-certificates curl libfontconfig python
 
 WORKDIR /opt
 
