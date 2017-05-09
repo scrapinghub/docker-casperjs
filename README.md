@@ -1,6 +1,6 @@
-# docker-casperjs
+# scrapinghub-image-casperjs
 
-Recommended base image for CasperJS spiders at Scrapinghub.
+Recommended base Docker image for CasperJS spiders at Scrapinghub.
 
 ## env2options
 
