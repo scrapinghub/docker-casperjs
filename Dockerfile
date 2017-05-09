@@ -15,4 +15,5 @@ ENV CASPERJS_VERSION 1.1.4-1
 RUN curl -L "https://github.com/casperjs/casperjs/archive/$CASPERJS_VERSION.tar.gz" | tar xz
 RUN ln -sf /opt/casperjs-$CASPERJS_VERSION/bin/casperjs /usr/bin/casperjs
 
-WORKDIR /app
+# Helper script
+ADD ./bin/env2options /usr/bin/env2options

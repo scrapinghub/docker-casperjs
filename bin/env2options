@@ -1,0 +1,95 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+import argparse
+import json
+import os
+from pipes import quote
+
+
+def get_arguments():
+    job_data_serialized = os.environ.get('SHUB_JOB_DATA')
+    if not job_data_serialized:
+        return {}
+    job_data = json.loads(job_data_serialized)
+    return job_data.get('spider_args') or {}
+
+
+SETTINGS_KEYS = [
+    'organization_settings',
+    'project_settings',
+    'spider_settings',
+    'job_settings',
+]
+
+
+def get_merged_settings():
+    settings_serialized = os.environ.get('SHUB_SETTINGS')
+    if not settings_serialized:
+        return {}
+    merged = {}
+    settings = json.loads(settings_serialized)
+    for key in SETTINGS_KEYS:
+        merged.update(settings.get(key) or {})
+    return merged
+
+
+def value_to_arg(value):
+    return quote(str(value))
+
+
+def compose_cli_options(values):
+    cli_args = []
+    for key in sorted(values):
+        value = values[key]
+        if value == '':
+            token = '--{}'.format(
+                value_to_arg(key)
+            )
+        else:
+            token = '--{}={}'.format(
+                value_to_arg(key),
+                value_to_arg(value)
+            )
+        cli_args.append(token)
+    return ' '.join(cli_args)
+
+
+SOURCE_ALL = 'all'
+SOURCE_ARGUMENTS = 'arguments'
+SOURCE_SETTINGS = 'settings'
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        prog='env2options',
+        description=(
+            "Utility to convert job arguments and/or job settings "
+            "to the CasperJS command line options"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument(
+        "source",
+        choices=[SOURCE_ALL, SOURCE_ARGUMENTS, SOURCE_SETTINGS],
+        default=SOURCE_ALL,
+        help="Select what should be converted to command line options")
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+    if args.source == SOURCE_ALL:
+        values = get_merged_settings()
+        job_arguments = get_arguments()
+        values.update(job_arguments)
+    elif args.source == SOURCE_ARGUMENTS:
+        values = get_arguments()
+    elif args.source == SOURCE_SETTINGS:
+        values = get_merged_settings()
+    else:
+        raise RuntimeError('Unknown source value')
+    cli_options = compose_cli_options(values)
+    print cli_options,
+
+
+if __name__ == '__main__':
+    main()
