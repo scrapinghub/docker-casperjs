@@ -1,0 +1,59 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+import os
+import json
+from argparse import ArgumentParser
+
+
+def _jobdata():
+    return json.loads(os.environ.get('SHUB_JOB_DATA', '{}'))
+
+
+def _exec_args(jobdata):
+    if not jobdata:
+        return []
+
+    job_cmd = jobdata.get('job_cmd')
+    if job_cmd:
+        return job_cmd
+
+    spider_args = jobdata.get('spider_args', {})
+    args = [jobdata['spider']]
+    args.extend('--{}={}'.format(k, v) for k, v in spider_args.items())
+    return args
+
+
+def _settings():
+    settings = json.loads(os.environ.get('SHUB_SETTINGS', '{}'))
+    merged = {}
+    for key in ['organization_settings', 'project_settings',
+                'spider_settings', 'job_settings']:
+        merged.update(settings.get(key) or {})
+    return merged
+
+
+def _exec_env(settings):
+    env = dict(os.environ)
+    env.update({k: str(v) for k, v in settings.items()})
+    return env
+
+
+def main():
+    ap = ArgumentParser()
+    ap.add_argument('--dont-use-path', action='store_true')
+    ap.add_argument('cmd', nargs='*')
+    args = ap.parse_args()
+
+    jobdata = _jobdata()
+    settings = _settings()
+    exec_args = args.cmd + _exec_args(jobdata)
+    exec_env = _exec_env(settings)
+
+    if args.dont_use_path:
+        os.execve(exec_args[0], exec_args, exec_env)
+    else:
+        os.execvpe(exec_args[0], exec_args, exec_env)
+
+
+if __name__ == '__main__':
+    main()
