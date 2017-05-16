@@ -40,7 +40,9 @@ def _exec_env(settings):
 
 def main():
     ap = ArgumentParser()
-    ap.add_argument('--dont-use-path', action='store_true')
+    ap.add_argument('--ignore-path', action='store_true',
+                    help="Do not use PATH environment variable to locate "
+                         "program file")
     ap.add_argument('cmd', nargs='*')
     args = ap.parse_args()
 
@@ -49,10 +51,8 @@ def main():
     exec_args = args.cmd + _exec_args(jobdata)
     exec_env = _exec_env(settings)
 
-    if args.dont_use_path:
-        os.execve(exec_args[0], exec_args, exec_env)
-    else:
-        os.execvpe(exec_args[0], exec_args, exec_env)
+    exec_syscall = os.execve if args.ignore_path else os.execvpe
+    exec_syscall(exec_args[0], exec_args, exec_env)
 
 
 if __name__ == '__main__':
