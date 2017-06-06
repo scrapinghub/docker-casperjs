@@ -16,4 +16,4 @@ RUN curl -L "https://github.com/casperjs/casperjs/archive/$CASPERJS_VERSION.tar.
 RUN ln -sf /opt/casperjs-$CASPERJS_VERSION/bin/casperjs /usr/bin/casperjs
 
 # Helper script
-ADD ./bin/env2options /usr/bin/env2options
+ADD ./bin/shub-exec /usr/bin/shub-exec
