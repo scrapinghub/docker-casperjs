@@ -15,20 +15,15 @@ An example start-crawl for CasperJS is:
 
 ```
 #/bin/sh
-exec shub-exec -- casperjs --debug
+exec shub-exec -- casperjs --debug /app/$SHUB_SPIDER
 ```
 
-For a job whose spider name is simple.js it will run:
+For a job whose spider name is simple.js and job arguments are url=http://scrapinghub.com it will run:
 
-    casperjs --debug simple.js
+    casperjs --debug /app/simple.js --url=http://scrapinghub.com
 
 It's important to have `--` before the positional arguments, it helps to distinguish shub-exec options
 from script options.
 
 If the job has some setting set, i.e. LOGLEVEL=DEBUG, it will be available in CasperJS
-process environment as 'LOGLEVEL' with value 'DEBUG'. Any extra argument in `SHUB_JOB_DATA`
-'job_cmd' or 'spider_args' fields are passed to command after spider name, i.e.
-
-```
-casperjs --debug simple.js --url=http://scrapinghub.com
-```
+process environment as 'LOGLEVEL' with value 'DEBUG'.

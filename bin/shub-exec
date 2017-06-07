@@ -12,20 +12,17 @@ environment variable.
 An example start-crawl for CasperJS is:
 
     #/bin/sh
-    exec shub-exec -- casperjs --debug
+    exec shub-exec -- casperjs --debug /app/$SHUB_SPIDER
 
-For a job whose spider name is simple.js it will run:
+For a job whose spider name is simple.js and job arguments are url=http://scrapinghub.com it will run:
 
-    casperjs --debug simple.js
+    casperjs --debug /app/simple.js --url=http://scrapinghub.com
 
 It's important to add -- before the positional arguments, it helps to distinguish shub-exec options
 from script options.
 
 If the job has some setting set, i.e. LOGLEVEL=DEBUG, it will be available in casperjs
-process environment as 'LOGLEVEL' envvar with value 'DEBUG'. Any extra argument in SHUB_JOB_DATA
-'job_cmd' or 'spider_args' fields are passed to command after spider name, i.e.
-
-    casperjs --debug simple.js --url=http://scrapinghub.com
+process environment as 'LOGLEVEL' envvar with value 'DEBUG'.
 
 """
 import argparse
@@ -49,10 +46,10 @@ def _exec_args(jobdata):
     if not jobdata:
         return []
     if 'job_cmd' in jobdata:
-        args = jobdata.get('job_cmd', [])
+        args = jobdata.get('job_cmd', [])[1:]
     else:
         spider_args = jobdata.get('spider_args', {})
-        args = [jobdata['spider']]
+        args = []
         for key, value in spider_args.items():
             args.append(u'--{}={}'.format(key, value))
     return [x.encode('utf-8') for x in args]
@@ -88,7 +85,7 @@ def parse_args():
     parser.add_argument(
         'cmd',
         nargs='*',
-        help="Command to launch spider script. "
+        help="Command to launch spider script, i.e. casperjs /app/$SHUB_SPIDER. "
              "It's important to add -- before the positional arguments, "
              "see example in the description.")
     return parser.parse_args()
