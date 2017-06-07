@@ -1,5 +1,14 @@
 # Releases
 
+# 0.0.5
+
+- Added shub-exec helper.
+- Removed env2options helper.
+
+## 0.0.4
+
+- env2options - add support for job_cmd job data argument and non-ascii values.
+
 ## 0.0.3
 
 - Added env2options helper.
