@@ -1,5 +1,9 @@
 # Releases
 
+# 0.0.6
+
+- shub-exec - remove spider name as a first positional argument.
+
 # 0.0.5
 
 - Added shub-exec helper.
